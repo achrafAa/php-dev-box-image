@@ -64,17 +64,27 @@ ENV PHP_MAJOR_VERSION=${PHP_MAJOR_VERSION}
 ENV PATH="/opt/php/bin:${PATH}"
 ENV PKG_CONFIG_PATH="/opt/php/lib/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
 
-# Install only runtime dependencies and development tools (combined for speed)
+# Install only runtime dependencies and development tools (split for reliability)
 RUN apt-get update && apt-get install -y \
-    # PHP runtime dependencies
-    libxml2 libssl3 libcurl4 libonig5 libreadline8 libsqlite3-0 zlib1g \
-    # Essential development tools
+    # Essential development tools first
     gdb valgrind strace git nano vim curl wget unzip htop tree jq \
-    # Build tools for extensions
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PHP runtime dependencies
+RUN apt-get update && apt-get install -y \
+    libxml2 libssl3 libcurl4 libonig5 libreadline8 libsqlite3-0 zlib1g \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install build tools for extensions
+RUN apt-get update && apt-get install -y \
     build-essential autoconf automake libtool bison flex re2c pkg-config \
-    # Optional extension libraries (lightweight)
-    libxml2-dev libssl-dev libcurl4-openssl-dev libonig-dev libreadline-dev \
-    libsqlite3-dev zlib1g-dev ca-certificates \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install development headers (may fail on some packages)
+RUN apt-get update && apt-get install -y \
+    libxml2-dev libssl-dev libcurl4-openssl-dev libonig-dev \
+    libreadline-dev libsqlite3-dev zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy compiled PHP from builder stage
