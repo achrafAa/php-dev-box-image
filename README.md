@@ -4,6 +4,34 @@ A pre-built Docker image that provides a complete PHP development environment fo
 
 ## 🚀 Quick Start
 
+### Using Pre-built Image from Docker Hub
+
+```bash
+# Pull and run the latest image (PHP 8.4.4)
+docker run -v $(pwd):/workdir -it --rm aachraf/php-dev-box:latest
+
+# Show available commands and help
+docker run --rm aachraf/php-dev-box:latest phpdev help
+
+# Create a new PHP extension
+docker run -v $(pwd):/workdir -it --rm aachraf/php-dev-box:latest phpdev create EXT=myext
+
+# Use specific PHP version
+docker run -v $(pwd):/workdir -it --rm aachraf/php-dev-box:8.3 phpdev info
+docker run -v $(pwd):/workdir -it --rm aachraf/php-dev-box:8.2 phpdev info
+docker run -v $(pwd):/workdir -it --rm aachraf/php-dev-box:8.1 phpdev info
+```
+
+#### Available Tags on Docker Hub
+| Tag | PHP Version | Architecture | Size |
+|-----|-------------|--------------|------|
+| `latest`, `8.4`, `8.4.4` | PHP 8.4.4 | linux/amd64, linux/arm64 | ~485MB / ~460MB |
+| `8.3`, `8.3.15` | PHP 8.3.15 | linux/amd64, linux/arm64 | ~457MB / ~435MB |
+| `8.2`, `8.2.28` | PHP 8.2.28 | linux/amd64, linux/arm64 | ~455MB / ~433MB |
+| `8.1`, `8.1.31` | PHP 8.1.31 | linux/amd64, linux/arm64 | ~449MB / ~428MB |
+
+### Building from Source
+
 ```bash
 # Build the image with minimal extensions (default)
 docker build -t php-dev-box .
@@ -176,8 +204,11 @@ make -f /usr/local/bin/Makefile.php-dev build
 
 #### 1. Working with PHP Source
 ```bash
-# Enter the container
-docker run -v $(pwd):/workdir -it --rm php-dev-box
+# Enter the container (using pre-built image)
+docker run -v $(pwd):/workdir -it --rm aachraf/php-dev-box:latest
+
+# Or use locally built image
+# docker run -v $(pwd):/workdir -it --rm php-dev-box
 
 # Navigate to PHP source
 cd /usr/src/php/src/php-src
@@ -225,8 +256,11 @@ valgrind --leak-check=full /opt/php/bin/php your_test_script.php
 
 #### 1. Create Extension Skeleton
 ```bash
-# Enter the container
-docker run -v $(pwd):/workdir -it --rm php-dev-box
+# Enter the container (using pre-built image)
+docker run -v $(pwd):/workdir -it --rm aachraf/php-dev-box:latest
+
+# Or use locally built image
+# docker run -v $(pwd):/workdir -it --rm php-dev-box
 
 # Create new extension
 phpdev create EXT=myawesome
