@@ -1,0 +1,119 @@
+# PHP Extension Development Makefile
+# Available in any directory as: make -f /usr/local/bin/Makefile.php-dev <target>
+
+.PHONY: help info create build test install clean debug lint
+
+# Default target
+help:
+	@echo "PHP Extension Development Environment"
+	@echo "===================================="
+	@echo ""
+	@echo "Available targets:"
+	@echo "  help         - Show this help message"
+	@echo "  info         - Show environment information"
+	@echo "  create       - Create extension skeleton (make create EXT=name)"
+	@echo "  build        - Build extension in current directory"
+	@echo "  test         - Run extension tests"
+	@echo "  install      - Install built extension"
+	@echo "  clean        - Clean build artifacts"
+	@echo "  debug        - Start GDB session with PHP"
+	@echo "  lint         - Check code style with basic tools"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make create EXT=myext"
+	@echo "  make build"
+	@echo "  make test"
+	@echo "  make debug"
+
+info:
+	@echo "=== PHP Extension Development Environment ==="
+	@php --version | head -n1
+	@echo "PHP Binary: $$(which php)"
+	@echo "PHP Source: /usr/src/php/src/php-src/"
+	@echo "Zig Version: $$(zig version)"
+	@echo ""
+	@echo "Development tools:"
+	@echo "  php (debug build), gdb, valgrind, zig, git, nano, vim"
+	@echo ""
+	@echo "Volume mount your code to /workdir"
+
+create:
+ifndef EXT
+	@echo "Error: Extension name required"
+	@echo "Usage: make create EXT=extension_name"
+	@exit 1
+endif
+	@echo "Creating PHP extension: $(EXT)"
+	@cd /usr/src/php/src/php-src && php ext/ext_skel.php --ext $(EXT) --dir /workdir
+	@echo "Extension $(EXT) created successfully in /workdir/$(EXT)"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  cd $(EXT)"
+	@echo "  make build"
+
+build:
+	@if [ ! -f "config.m4" ]; then \
+		echo "Error: config.m4 not found. Are you in an extension directory?"; \
+		echo "Create an extension first: make create EXT=name"; \
+		exit 1; \
+	fi
+	@echo "Building PHP extension..."
+	@make clean 2>/dev/null || true
+	@phpize
+	@./configure --enable-debug CFLAGS="-g -O0"
+	@make -j$$(nproc)
+	@echo "Build completed successfully!"
+	@echo "Next: make test"
+
+test:
+	@if [ ! -f "Makefile" ]; then \
+		echo "Error: No Makefile found. Run 'make build' first."; \
+		exit 1; \
+	fi
+	@echo "Running extension tests..."
+	@make test
+
+install:
+	@if [ ! -f "Makefile" ]; then \
+		echo "Error: No Makefile found. Run 'make build' first."; \
+		exit 1; \
+	fi
+	@echo "Installing extension..."
+	@make install
+	@echo "Extension installed successfully!"
+
+clean:
+	@echo "Cleaning build artifacts..."
+	@make clean 2>/dev/null || true
+	@rm -f configure configure.ac acinclude.m4 aclocal.m4 config.h.in
+	@rm -rf .libs autom4te.cache build modules vendor
+	@find . -name "*.lo" -o -name "*.la" -o -name "*.o" | xargs rm -f
+	@echo "Clean completed."
+
+debug:
+	@echo "Starting GDB session with PHP..."
+	@echo "Useful GDB commands:"
+	@echo "  (gdb) run -dextension=./modules/your_ext.so test.php"
+	@echo "  (gdb) break zif_your_function"
+	@echo "  (gdb) break php_your_function"
+	@gdb php
+
+lint:
+	@echo "Basic code checking..."
+	@find . -name "*.c" -o -name "*.h" | head -10 | while read file; do \
+		echo "Checking $$file..."; \
+		gcc -fsyntax-only -I$$(php-config --include-dir) -I$$(php-config --include-dir)/main -I$$(php-config --include-dir)/TSRM -I$$(php-config --include-dir)/Zend $$file 2>/dev/null && echo "  ✓ Syntax OK" || echo "  ✗ Syntax errors found"; \
+	done
+
+# Advanced targets
+valgrind:
+	@if [ ! -f "modules/*.so" ]; then \
+		echo "Error: No compiled extension found. Run 'make build' first."; \
+		exit 1; \
+	fi
+	@echo "Running Valgrind memory check..."
+	@valgrind --leak-check=full --show-leak-kinds=all php -dextension=./modules/*.so
+
+# Create shortcut script
+ext-skel:
+	@cd /usr/src/php/src/php-src && php ext/ext_skel.php $(ARGS) 

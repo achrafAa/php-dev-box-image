@@ -125,26 +125,49 @@ All major development libraries are pre-installed for optional extensions:
 
 ## 📝 Available Commands
 
-Once inside the container, you have access to these convenience commands:
+### Primary Command: `phpdev`
+The main command that provides access to all development tasks:
 
 ```bash
-# Create a new extension skeleton
-create-extension <extension_name>
-
-# Build extension in current directory
-build-extension
-
-# Direct access to ext_skel.php
-ext_skel --ext=myext
-
-# Prepare extension for building
-phpize
+# Show help and available targets
+phpdev help
 
 # Show environment information
-info
+phpdev info
 
-# Debug PHP with GDB
-php-debug
+# Create a new extension skeleton
+phpdev create EXT=myext
+
+# Build extension in current directory
+phpdev build
+
+# Run extension tests
+phpdev test
+
+# Install built extension
+phpdev install
+
+# Clean build artifacts
+phpdev clean
+
+# Start GDB debugging session
+phpdev debug
+
+# Basic code linting
+phpdev lint
+
+# Memory debugging with Valgrind
+phpdev valgrind
+```
+
+### Makefile-Based Workflow
+You can also use the Makefile directly for more control:
+
+```bash
+# Use the development Makefile directly
+make -f /usr/local/bin/Makefile.php-dev help
+make -f /usr/local/bin/Makefile.php-dev create EXT=myext
+make -f /usr/local/bin/Makefile.php-dev build
 ```
 
 ## 🏗️ Development Workflows
@@ -187,6 +210,8 @@ make install
 #### 3. Debug PHP Core
 ```bash
 # Debug PHP core with GDB
+phpdev debug
+# or manually:
 gdb /opt/php/bin/php
 (gdb) set args your_test_script.php
 (gdb) break zend_execute
@@ -204,7 +229,7 @@ valgrind --leak-check=full /opt/php/bin/php your_test_script.php
 docker run -v $(pwd):/workdir -it --rm php-dev-box
 
 # Create new extension
-create-extension myawesome
+phpdev create EXT=myawesome
 cd myawesome
 ```
 
@@ -221,13 +246,13 @@ nano config.m4
 #### 3. Build and Test Extension
 ```bash
 # Build the extension
-build-extension
+phpdev build
 
 # Run tests
-make test
+phpdev test
 
 # Install extension
-make install
+phpdev install
 
 # Load extension in PHP
 php -dextension=myawesome.so -m | grep myawesome
@@ -236,12 +261,32 @@ php -dextension=myawesome.so -m | grep myawesome
 #### 4. Debug Your Extension
 ```bash
 # Debug with GDB
+phpdev debug
+
+# Or manually
 gdb php
 (gdb) run -dextension=modules/myawesome.so your_test.php
 
 # Memory debugging with Valgrind
+phpdev valgrind
+# or manually:
 valgrind --leak-check=full php -dextension=modules/myawesome.so your_test.php
 ```
+
+## 🚀 Build Optimizations
+
+This image uses **multi-stage builds** for optimal performance:
+
+### ✅ **Fast Build Process**
+- **Parallel downloads**: PHP source and Zig compiler download simultaneously
+- **Multi-stage build**: Compilation happens in builder stage, final image is optimized
+- **Layer caching**: Efficient Docker layer strategy for faster rebuilds
+- **Minimal final image**: Only runtime dependencies and development tools
+
+### ✅ **Smart Extension Support**
+- **Default minimal set**: Core extensions only (mbstring, opcache, openssl, curl, etc.)
+- **Build-time customization**: Add extensions via `ENABLE_EXTENSIONS` build arg
+- **All libraries available**: Full development libraries pre-installed for any extension
 
 ## 🔧 Configuration
 
@@ -261,7 +306,7 @@ opcache.enable = 0
 ```bash
 PHP_VERSION=8.4.4           # PHP version
 PATH=/opt/php/bin:$PATH     # PHP binaries in PATH
-PKG_CONFIG_PATH=/opt/php/lib/pkgconfig:$PKG_CONFIG_PATH
+PKG_CONFIG_PATH=/opt/php/lib/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig
 ```
 
 ## 📁 Directory Structure
@@ -282,9 +327,79 @@ PKG_CONFIG_PATH=/opt/php/lib/pkgconfig:$PKG_CONFIG_PATH
 
 /workdir/                   # Mounted workspace (your code)
 
-/usr/local/bin/             # Custom scripts
-├── create-extension        # Extension skeleton generator
-├── build-extension         # Extension builder
-├── ext_skel               # Direct ext_skel access
-└── info                   # Environment information
+/usr/local/bin/             # Development tools
+├── phpdev                  # Main development command
+├── Makefile.php-dev        # Development Makefile
+└── zig                    # Zig compiler
 ```
+
+## 🌟 Features
+
+### ✅ **Optimized Build Process**
+- Multi-stage Docker build for speed and efficiency
+- Parallel downloads for faster initial setup
+- Smart layer caching for quick rebuilds
+- Minimal runtime image size
+
+### ✅ **Professional Development Environment**
+- Makefile-based workflow with proper dependency management
+- Both simple commands (`phpdev`) and granular control
+- Comprehensive error checking and guidance
+- Industry-standard development practices
+
+### ✅ **Instant Setup**
+- No 10+ minute PHP compilation time (pre-built)
+- Ready-to-use development environment
+- Flexible extension configuration
+
+### ✅ **Debug-Ready**
+- PHP compiled with debug symbols
+- GDB and Valgrind included and integrated
+- Optimized for both core and extension debugging
+
+### ✅ **Complete Development Environment**
+- Full PHP source code access
+- All build tools and dependencies
+- Support for both core and extension development
+- Modern tools (Zig compiler, comprehensive toolchain)
+
+### ✅ **Developer-Friendly**
+- Intuitive command structure (`phpdev help`)
+- Built-in help and guidance
+- Backwards compatibility with traditional commands
+- Volume mounting for code persistence
+
+## 🎯 Use Cases
+
+### PHP Core Development
+- Working on Zend Engine improvements
+- Developing new PHP language features
+- Fixing PHP core bugs and optimizations
+- Adding new SAPIs
+
+### PHP Extension Development
+- Creating custom PHP extensions
+- Porting extensions to new PHP versions
+- Debugging extension issues
+- Performance testing extensions
+
+### Research & Learning
+- Understanding PHP internals
+- Learning C programming with PHP
+- Experimenting with language features
+- Educational purposes
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Related Projects
+
+- [PHP Source](https://github.com/php/php-src)
+- [PHP Internals](https://www.php.net/manual/en/internals2.php)
+- [PHP RFC Process](https://wiki.php.net/rfc)
+- [Zig Language](https://ziglang.org/)
+
+---
+
+**Happy PHP Core & Extension Development! 🚀**
