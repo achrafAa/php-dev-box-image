@@ -1,5 +1,13 @@
 # PHP Core & Extension Development Docker Image
 
+[![Docker Pulls](https://img.shields.io/docker/pulls/aachraf/php-dev-box?logo=docker&logoColor=white)](https://hub.docker.com/r/aachraf/php-dev-box)
+[![Docker Image Size](https://img.shields.io/docker/image-size/aachraf/php-dev-box/latest?logo=docker&logoColor=white)](https://hub.docker.com/r/aachraf/php-dev-box)
+[![Docker Stars](https://img.shields.io/docker/stars/aachraf/php-dev-box?logo=docker&logoColor=white)](https://hub.docker.com/r/aachraf/php-dev-box)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/achrafAa/php-dev-box-image/build-and-publish.yml?branch=main&logo=github&logoColor=white)](https://github.com/achrafAa/php-dev-box-image/actions)
+[![GitHub License](https://img.shields.io/github/license/achrafAa/php-dev-box-image?logo=github&logoColor=white)](https://github.com/achrafAa/php-dev-box-image/blob/main/LICENSE)
+[![GitHub Issues](https://img.shields.io/github/issues/achrafAa/php-dev-box-image?logo=github&logoColor=white)](https://github.com/achrafAa/php-dev-box-image/issues)
+[![GitHub Last Commit](https://img.shields.io/github/last-commit/achrafAa/php-dev-box-image?logo=github&logoColor=white)](https://github.com/achrafAa/php-dev-box-image/commits/main)
+
 A pre-built Docker image that provides a complete PHP development environment for both **PHP core development** and **PHP extension development** with debug symbols, development tools, and the Zig compiler. Eliminates the need for time-consuming PHP compilation by providing a ready-to-use development environment.
 
 ## 🚀 Quick Start
