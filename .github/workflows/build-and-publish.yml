@@ -3,8 +3,18 @@ name: Docker Build and Push
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'Dockerfile'
+      - 'docker.yml'
+      - 'Makefile.php-dev'
+      - '.github/workflows/build-and-publish.yml'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'Dockerfile'
+      - 'docker.yml'
+      - 'Makefile.php-dev'
+      - '.github/workflows/build-and-publish.yml'
 
 jobs:
   build:
