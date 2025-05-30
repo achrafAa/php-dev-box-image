@@ -13,8 +13,10 @@ ENV PATH="/opt/php/bin:${PATH}"
 ENV PKG_CONFIG_PATH="/opt/php/lib/pkgconfig:${PKG_CONFIG_PATH}"
 
 # Install system dependencies and build tools
-RUN apt-get update && apt-get install -y \
-    # Core build tools
+RUN apt-get update && apt-get upgrade -y
+
+# Install core build tools
+RUN apt-get install -y \
     build-essential \
     autoconf \
     automake \
@@ -23,15 +25,37 @@ RUN apt-get update && apt-get install -y \
     flex \
     re2c \
     pkg-config \
-    # Essential PHP dependencies
+    ca-certificates \
+    gnupg \
+    lsb-release \
+    curl \
+    wget
+
+# Install essential PHP dependencies
+RUN apt-get install -y \
     libxml2-dev \
     libssl-dev \
     libcurl4-openssl-dev \
     libonig-dev \
     libreadline-dev \
     libsqlite3-dev \
-    zlib1g-dev \
-    # Optional dependencies (available if needed)
+    zlib1g-dev
+
+# Install development and debugging tools
+RUN apt-get install -y \
+    gdb \
+    valgrind \
+    strace \
+    git \
+    nano \
+    vim \
+    unzip \
+    htop \
+    tree \
+    jq
+
+# Install optional PHP extension dependencies (available if needed)
+RUN apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
@@ -43,32 +67,22 @@ RUN apt-get update && apt-get install -y \
     libgmp-dev \
     libldap2-dev \
     libsasl2-dev \
-    libc-client-dev \
+    libffi-dev \
+    libargon2-dev \
+    libsodium-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install potentially problematic packages separately
+RUN apt-get update && apt-get install -y \
     libkrb5-dev \
     libtidy-dev \
     libsnmp-dev \
     libenchant-2-dev \
-    libffi-dev \
-    libargon2-dev \
-    libsodium-dev \
-    # Development and debugging tools
-    gdb \
-    valgrind \
-    strace \
-    git \
-    nano \
-    vim \
-    curl \
-    wget \
-    unzip \
-    htop \
-    tree \
-    jq \
-    # Additional utilities
-    ca-certificates \
-    gnupg \
-    lsb-release \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* || true
+
+# Try to install libc-client-dev separately (can be problematic)
+RUN apt-get update && apt-get install -y libc-client-dev && rm -rf /var/lib/apt/lists/* || \
+    echo "Warning: libc-client-dev not available, IMAP support will be limited"
 
 # Install Zig compiler
 RUN curl -L https://ziglang.org/download/0.14.0/zig-linux-x86_64-0.14.0.tar.xz | tar -xJ -C /opt/ \
