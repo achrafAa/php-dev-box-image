@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PHP_VERSION=${PHP_VERSION}
 ENV PHP_MAJOR_VERSION=${PHP_MAJOR_VERSION}
 ENV PATH="/opt/php/bin:${PATH}"
-ENV PKG_CONFIG_PATH="/opt/php/lib/pkgconfig:${PKG_CONFIG_PATH}"
+ENV PKG_CONFIG_PATH="/opt/php/lib/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
 
 # Install system dependencies and build tools
 RUN apt-get update && apt-get upgrade -y
