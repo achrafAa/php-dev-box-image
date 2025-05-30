@@ -5,8 +5,18 @@ A pre-built Docker image that provides a complete PHP development environment fo
 ## 🚀 Quick Start
 
 ```bash
-# Build the image
+# Build the image with minimal extensions (default)
 docker build -t php-dev-box .
+
+# Build with additional extensions
+docker build --build-arg ENABLE_EXTENSIONS="--enable-gd --enable-intl --with-pdo-mysql --enable-zip" -t php-dev-box .
+
+# Build a specific PHP version with extensions
+docker build \
+  --build-arg PHP_VERSION=8.3.15 \
+  --build-arg PHP_MAJOR_VERSION=8.3 \
+  --build-arg ENABLE_EXTENSIONS="--enable-bcmath --enable-gd --with-pdo-mysql" \
+  -t php-dev-box:8.3 .
 
 # Run interactively
 docker run -v $(pwd):/workdir -it --rm php-dev-box
@@ -14,6 +24,60 @@ docker run -v $(pwd):/workdir -it --rm php-dev-box
 # Using docker-compose
 docker-compose -f docker.yml up -d
 docker-compose -f docker.yml exec php-dev-box bash
+```
+
+## 🔧 Available Extensions
+
+### Included by Default
+- **mbstring** - Multibyte string support
+- **opcache** - Zend OPcache for performance
+- **openssl** - OpenSSL support
+- **curl** - cURL support
+- **zlib** - Compression support
+- **readline** - Command line editing
+- **sqlite3** - SQLite support
+- **pdo-sqlite** - SQLite PDO driver
+
+### Optional Extensions (via build args)
+You can enable additional extensions by passing them to `ENABLE_EXTENSIONS`:
+
+```bash
+# Database extensions
+--enable-mysqlnd --with-pdo-mysql --with-pdo-pgsql
+
+# Graphics and media
+--enable-gd --enable-exif
+
+# Internationalization
+--enable-intl --enable-gettext
+
+# Compression and archives
+--enable-zip --with-bz2
+
+# Math and crypto
+--enable-bcmath --with-gmp --with-sodium --with-password-argon2
+
+# Web services
+--enable-soap --enable-ftp --enable-sockets
+
+# Development utilities
+--with-xsl --enable-calendar --with-ffi
+
+# System integration
+--with-ldap --with-ldap-sasl --enable-sysvmsg --enable-sysvsem --enable-sysvshm
+```
+
+### Example Builds for Different Use Cases
+
+```bash
+# Web development (MySQL, GD, internationalization)
+docker build --build-arg ENABLE_EXTENSIONS="--enable-mysqlnd --with-pdo-mysql --enable-gd --enable-intl --enable-zip" -t php-dev-box:web .
+
+# API development (JSON, cURL, crypto)
+docker build --build-arg ENABLE_EXTENSIONS="--with-sodium --with-password-argon2 --enable-ftp --enable-sockets" -t php-dev-box:api .
+
+# Full-featured (most common extensions)
+docker build --build-arg ENABLE_EXTENSIONS="--enable-mysqlnd --with-pdo-mysql --with-pdo-pgsql --enable-gd --enable-intl --enable-zip --enable-bcmath --with-bz2 --enable-soap --enable-sockets" -t php-dev-box:full .
 ```
 
 ## 🛠️ What's Included
@@ -24,6 +88,15 @@ docker-compose -f docker.yml exec php-dev-box bash
 - **ext_skel.php** ready for extension skeleton generation
 - **phpize** for extension configuration
 - **Full PHP build environment** for core development
+
+### PHP Extensions (Default Minimal Set)
+- **Core**: CLI, FPM, OPcache
+- **String**: mbstring
+- **Network**: OpenSSL, cURL
+- **Database**: SQLite3, PDO-SQLite
+- **Compression**: zlib
+- **Interactive**: readline
+- **Additional extensions** available via build arguments
 
 ### Development Tools
 - **GDB** - GNU Debugger for debugging PHP core and extensions
@@ -41,10 +114,13 @@ docker-compose -f docker.yml exec php-dev-box bash
 - **Make** - Build automation
 - **pkg-config** - Library configuration
 
-### PHP Extensions (Enabled)
-- Core extensions: mbstring, intl, bcmath, gd, zip, etc.
-- Database: MySQLnd, PDO (MySQL, SQLite, PostgreSQL)
-- Security: OpenSSL, Sodium, Argon2
+### System Libraries (Available for Extensions)
+All major development libraries are pre-installed for optional extensions:
+- Database: MySQL, PostgreSQL clients
+- Graphics: PNG, JPEG, FreeType, GD
+- Compression: BZ2, ZIP
+- Internationalization: ICU
+- Security: Sodium, Argon2
 - And many more...
 
 ## 📝 Available Commands
@@ -212,109 +288,3 @@ PKG_CONFIG_PATH=/opt/php/lib/pkgconfig:$PKG_CONFIG_PATH
 ├── ext_skel               # Direct ext_skel access
 └── info                   # Environment information
 ```
-
-## 🔍 Debugging Tips
-
-### Debugging PHP Core
-```bash
-# Start debugging session for PHP core
-gdb /opt/php/bin/php
-(gdb) set args -f your_script.php
-(gdb) break zend_compile_file
-(gdb) break zend_execute
-(gdb) run
-
-# Debug specific PHP components
-(gdb) break php_request_startup
-(gdb) break php_request_shutdown
-```
-
-### Debugging Extensions
-```bash
-# Start debugging session for extensions
-gdb php
-(gdb) set args -dextension=./modules/myext.so test.php
-(gdb) break zif_myext_function
-(gdb) run
-```
-
-### Memory Debugging
-```bash
-# Check for memory leaks in PHP core
-valgrind --leak-check=full --show-leak-kinds=all php your_script.php
-
-# Check for memory leaks in extensions
-valgrind --leak-check=full --show-leak-kinds=all php -dextension=./modules/myext.so test.php
-
-# Check for undefined behavior
-valgrind --tool=memcheck php your_script.php
-```
-
-### Using Zig for Development
-```bash
-# Compile C code with Zig for additional safety checks
-zig cc -g -O0 -shared -fPIC myext.c -o myext.so $(php-config --includes)
-
-# Use Zig for PHP core development (experimental)
-zig cc -g -O0 -c main/main.c $(php-config --includes)
-```
-
-## 🌟 Features
-
-### ✅ Instant Setup
-- No 10+ minute PHP compilation time
-- Pre-built with all dependencies
-- Ready-to-use development environment
-
-### ✅ Debug-Ready
-- PHP compiled with debug symbols
-- GDB and Valgrind included
-- Optimized for core and extension debugging
-
-### ✅ Complete Development Environment
-- Full PHP source code access
-- All build tools and dependencies
-- Support for both core and extension development
-
-### ✅ Modern Tools
-- Zig compiler for additional development options
-- Git, nano, vim for development
-- Comprehensive build toolchain
-
-### ✅ Developer-Friendly
-- Convenient wrapper scripts
-- Informative help commands
-- Volume mounting for code persistence
-
-## 🎯 Use Cases
-
-### PHP Core Development
-- Working on Zend Engine improvements
-- Developing new PHP language features
-- Fixing PHP core bugs
-- Performance optimizations
-- Adding new SAPIs
-
-### PHP Extension Development
-- Creating custom PHP extensions
-- Porting extensions to new PHP versions
-- Debugging extension issues
-- Performance testing extensions
-
-### Research & Learning
-- Understanding PHP internals
-- Learning C programming with PHP
-- Experimenting with language features
-- Educational purposes
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🔗 Related Projects
-
-- [PHP Source](https://github.com/php/php-src)
-
----
-
-**Happy PHP Core & Extension Development! 🚀** 

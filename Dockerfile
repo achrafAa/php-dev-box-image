@@ -1,8 +1,9 @@
 FROM ubuntu:latest
 
-# Build arguments for PHP version
+# Build arguments for PHP version and optional extensions
 ARG PHP_VERSION=8.4.4
 ARG PHP_MAJOR_VERSION=8.4
+ARG ENABLE_EXTENSIONS=""
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -22,17 +23,19 @@ RUN apt-get update && apt-get install -y \
     flex \
     re2c \
     pkg-config \
-    # PHP dependencies
+    # Essential PHP dependencies
     libxml2-dev \
     libssl-dev \
     libcurl4-openssl-dev \
+    libonig-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    zlib1g-dev \
+    # Optional dependencies (available if needed)
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
-    libonig-dev \
     libzip-dev \
-    libreadline-dev \
-    libsqlite3-dev \
     libpq-dev \
     libicu-dev \
     libbz2-dev \
@@ -87,47 +90,17 @@ RUN ./buildconf --force && \
     ./configure \
         --prefix=/opt/php \
         --enable-debug \
-        --enable-fpm \
         --enable-cli \
-        --enable-cgi \
-        --enable-opcache \
+        --enable-fpm \
         --enable-mbstring \
-        --enable-intl \
-        --enable-bcmath \
-        --enable-calendar \
-        --enable-exif \
-        --enable-ftp \
-        --enable-gd \
-        --enable-gettext \
-        --enable-soap \
-        --enable-sockets \
-        --enable-sysvmsg \
-        --enable-sysvsem \
-        --enable-sysvshm \
-        --enable-zip \
-        --enable-mysqlnd \
-        --with-curl \
+        --enable-opcache \
         --with-openssl \
+        --with-curl \
         --with-zlib \
-        --with-bz2 \
         --with-readline \
         --with-sqlite3 \
-        --with-pdo-mysql \
         --with-pdo-sqlite \
-        --with-pdo-pgsql \
-        --with-xsl \
-        --with-gmp \
-        --with-ldap \
-        --with-ldap-sasl \
-        --with-imap \
-        --with-imap-ssl \
-        --with-kerberos \
-        --with-tidy \
-        --with-snmp \
-        --with-enchant \
-        --with-ffi \
-        --with-sodium \
-        --with-password-argon2 \
+        ${ENABLE_EXTENSIONS} \
         CFLAGS="-g -O0" \
         CXXFLAGS="-g -O0" && \
     make -j$(nproc) && \
