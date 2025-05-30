@@ -396,9 +396,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔗 Related Projects
 
 - [PHP Source](https://github.com/php/php-src)
-- [PHP Internals](https://www.php.net/manual/en/internals2.php)
-- [PHP RFC Process](https://wiki.php.net/rfc)
-- [Zig Language](https://ziglang.org/)
 
 ---
 
