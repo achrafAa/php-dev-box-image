@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  php-dev-box:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workdir
+    working_dir: /workdir
+    stdin_open: true
+    tty: true
+    environment:
+      - TERM=xterm-256color 

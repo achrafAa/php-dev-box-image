@@ -1,0 +1,56 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php_version: [8.4.4, 8.3.15, 8.2.28, 8.1.31]
+        include:
+          - php_version: 8.4.4
+            is_latest: true
+            major_version: "8.4"
+          - php_version: 8.3.15
+            major_version: "8.3"
+          - php_version: 8.2.28
+            major_version: "8.2"
+          - php_version: 8.1.31
+            major_version: "8.1"
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+      with:
+        platforms: linux/arm64,linux/amd64
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Docker Hub
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        build-args: |
+          PHP_VERSION=${{ matrix.php_version }}
+          PHP_MAJOR_VERSION=${{ matrix.major_version }}
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/php-dev-box:${{ matrix.php_version }}
+          ${{ secrets.DOCKER_USERNAME }}/php-dev-box:${{ matrix.major_version }}
+          ${{ matrix.is_latest && format('{0}/php-dev-box:latest', secrets.DOCKER_USERNAME) || '' }} 

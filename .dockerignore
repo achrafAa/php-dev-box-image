@@ -1,0 +1,66 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+.gitmodules
+
+# Documentation
+README.md
+*.md
+docs/
+examples/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+Jenkinsfile
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Logs
+*.log
+logs/
+
+# Development files
+docker-compose.yml
+docker-compose.*.yml
+.env
+.env.*
+
+# Test files
+tests/
+test/
+spec/
+
+# Node.js (if any)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python (if any)
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Build artifacts
+build/
+dist/
+target/
+*.tar.gz
+*.zip
+
+# Temporary directories
+tmp/
+temp/ 
